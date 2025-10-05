@@ -28,7 +28,12 @@ const Login = () => {
       const { accessToken, refreshToken } = response.data;
       setTokens(accessToken, refreshToken);
       const meResponse = await API.get('/auth/me');
-      setUser(meResponse.data);
+      const userData = meResponse.data;
+      setUser(userData);
+      // Store user ID in localStorage for quick access
+      if (userData.id) {
+        localStorage.setItem('userId', userData.id);
+      }
       navigate('/');
     } catch (err: any) {
       if (err.response?.data?.message) {

@@ -47,7 +47,13 @@ const TaskCard = ({ task, onEdit, onDelete, onUpdate }: TaskCardProps) => {
     }
   };
 
-  const isOverdue = task.daysOverdue > 0;
+  const isOverdue = (task.daysOverdue || task.days_overdue || 0) > 0;
+  const taskDueDate = task.dueDate || task.due_date;
+  const taskCreatedAt = task.createdAt || task.created_at;
+  const taskUpdatedAt = task.updatedAt || task.updated_at;
+  const taskCompletedAt = task.completedAt || task.completed_at;
+  const taskDaysOverdue = task.daysOverdue || task.days_overdue || 0;
+  const taskEffortVariance = task.effortVariance || task.effort_variance || 0;
 
   return (
     <div className={`bg-white rounded-lg shadow p-4 ${getPriorityClass(task.priority)}`}>
@@ -103,11 +109,11 @@ const TaskCard = ({ task, onEdit, onDelete, onUpdate }: TaskCardProps) => {
                   </div>
                 )}
 
-                {task.dueDate && (
+                {taskDueDate && (
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-gray-500">Due Date:</span>
                     <span className={isOverdue ? 'text-red-600 font-bold' : 'text-gray-900'}>
-                      {new Date(task.dueDate).toLocaleDateString()}
+                      {new Date(taskDueDate).toLocaleDateString()}
                     </span>
                   </div>
                 )}
@@ -115,7 +121,7 @@ const TaskCard = ({ task, onEdit, onDelete, onUpdate }: TaskCardProps) => {
                 {isOverdue && (
                   <div className="mb-2">
                     <span className="px-2 py-1 bg-red-500 text-white text-xs rounded font-semibold">
-                      {task.daysOverdue} days overdue
+                      {taskDaysOverdue} days overdue
                     </span>
                   </div>
                 )}
@@ -136,11 +142,11 @@ const TaskCard = ({ task, onEdit, onDelete, onUpdate }: TaskCardProps) => {
                   </div>
                 )}
 
-                {task.effortVariance !== 0 && task.actualHours && (
+                {taskEffortVariance !== 0 && task.actualHours && (
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-gray-500">Variance:</span>
-                    <span className={task.effortVariance > 0 ? 'text-red-600' : 'text-green-600'}>
-                      {task.effortVariance > 0 ? '+' : ''}{task.effortVariance}%
+                    <span className={taskEffortVariance > 0 ? 'text-red-600' : 'text-green-600'}>
+                      {taskEffortVariance > 0 ? '+' : ''}{taskEffortVariance}%
                     </span>
                   </div>
                 )}
@@ -148,10 +154,10 @@ const TaskCard = ({ task, onEdit, onDelete, onUpdate }: TaskCardProps) => {
             </div>
 
             <div className="flex items-center gap-4 text-xs text-gray-500 mt-3">
-              <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
-              <span>Updated: {new Date(task.updatedAt).toLocaleDateString()}</span>
-              {task.completedAt && (
-                <span>Completed: {new Date(task.completedAt).toLocaleDateString()}</span>
+              {taskCreatedAt && <span>Created: {new Date(taskCreatedAt).toLocaleDateString()}</span>}
+              {taskUpdatedAt && <span>Updated: {new Date(taskUpdatedAt).toLocaleDateString()}</span>}
+              {taskCompletedAt && (
+                <span>Completed: {new Date(taskCompletedAt).toLocaleDateString()}</span>
               )}
             </div>
           </div>

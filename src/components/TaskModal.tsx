@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Task, TaskStatus, TaskPriority } from '../types';
-import { taskService } from '../api/services';
+import type { Task, TaskStatus, TaskPriority, OrganizationMember } from '../types';
+import { taskService, projectService, organizationService } from '../api/services';
 
 interface TaskModalProps {
   projectId: string;
@@ -15,26 +15,48 @@ const TaskModal = ({ projectId, task, onClose, onSave }: TaskModalProps) => {
     description: '',
     status: 'todo' as TaskStatus,
     priority: 'medium' as TaskPriority,
+    assigneeId: '',
     dueDate: '',
-    estimatedHours: '',
-    actualHours: '',
   });
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    loadMembers();
+  }, [projectId]);
+
+  useEffect(() => {
     if (task) {
+      const taskDueDate = task.dueDate || task.due_date;
+      const taskAssigneeId = task.assigneeId || task.assignee_id;
+      
       setFormData({
         title: task.title,
         description: task.description || '',
         status: task.status,
         priority: task.priority,
-        dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
-        estimatedHours: task.estimatedHours?.toString() || '',
-        actualHours: task.actualHours?.toString() || '',
+        assigneeId: taskAssigneeId || '',
+        dueDate: taskDueDate ? taskDueDate.split('T')[0] : '',
       });
     }
   }, [task]);
+
+  const loadMembers = async () => {
+    try {
+      // Get project details to get organization ID
+      const projectResponse = await projectService.getProject(projectId);
+      const orgId = projectResponse.data.organization_id || projectResponse.data.organizationId;
+      
+      if (orgId) {
+        // Get organization members
+        const membersResponse = await organizationService.getMembers(orgId);
+        setMembers(membersResponse.data.data || []);
+      }
+    } catch (error) {
+      console.error('Error loading members:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,9 +69,8 @@ const TaskModal = ({ projectId, task, onClose, onSave }: TaskModalProps) => {
         description: formData.description || undefined,
         status: formData.status,
         priority: formData.priority,
+        assigneeId: formData.assigneeId || undefined,
         dueDate: formData.dueDate || undefined,
-        estimatedHours: formData.estimatedHours ? Number(formData.estimatedHours) : undefined,
-        actualHours: formData.actualHours ? Number(formData.actualHours) : undefined,
       };
 
       if (task) {
@@ -142,6 +163,24 @@ const TaskModal = ({ projectId, task, onClose, onSave }: TaskModalProps) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                Assignee (Optional)
+              </label>
+              <select
+                value={formData.assigneeId}
+                onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Unassigned</option>
+                {members.map((member) => (
+                  <option key={member.user.id} value={member.user.id}>
+                    {member.user.username} ({member.user.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Due Date
               </label>
               <input
@@ -151,56 +190,6 @@ const TaskModal = ({ projectId, task, onClose, onSave }: TaskModalProps) => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Estimated Hours
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={formData.estimatedHours}
-                  onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Actual Hours
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={formData.actualHours}
-                  onChange={(e) => setFormData({ ...formData, actualHours: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {task && (
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h3 className="font-medium text-gray-900 mb-2">Calculated Fields (Read-only)</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600">Days Overdue:</span>
-                    <span className={`ml-2 font-semibold ${task.daysOverdue > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {task.daysOverdue}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Effort Variance:</span>
-                    <span className={`ml-2 font-semibold ${task.effortVariance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {task.effortVariance}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="flex justify-end gap-3 pt-4">
               <button

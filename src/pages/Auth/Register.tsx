@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/auth';
+import toast from 'react-hot-toast';
 import API from '../../api';
 
 const Register = () => {
@@ -10,7 +10,6 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const { setTokens, setUser } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,18 +21,20 @@ const Register = () => {
     }
     try {
       const response = await API.post('/auth/register', { email, username, password });
-      const { tokens } = response.data;
-      setTokens(tokens.accessToken, tokens.refreshToken);
-      const meResponse = await API.get('/auth/me');
-      setUser(meResponse.data);
-      navigate('/');
+      // Registration successful - show success message and redirect to login
+      toast.success('Registration successful! Please log in with your credentials.');
+      navigate('/login', { 
+        state: { 
+          message: 'Registration successful! Please log in with your credentials.' 
+        } 
+      });
     } catch (err: any) {
       if (err.response?.status === 409) {
         setError('This email or username is already registered. Please login instead or use different credentials.');
       } else if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
-        setError('Failed to register. Please try again.' + err);
+        setError('Failed to register. Please try again.');
       }
     }
   };

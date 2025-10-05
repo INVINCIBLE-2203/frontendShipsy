@@ -4,6 +4,8 @@ import Login from '../pages/Auth/Login';
 import Register from '../pages/Auth/Register';
 import Dashboard from '../pages/Dashboard';
 import TaskList from '../pages/tasks/TaskList';
+import Organizations from '../pages/Organizations';
+import OrganizationDetails from '../pages/OrganizationDetails';
 import AuthGuard from './AuthGuard';
 
 const router = createBrowserRouter([
@@ -18,6 +20,14 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <AuthGuard><Dashboard /></AuthGuard>,
+  },
+  {
+    path: '/organizations',
+    element: <AuthGuard><Organizations /></AuthGuard>,
+  },
+  {
+    path: '/organizations/:id',
+    element: <AuthGuard><OrganizationDetails /></AuthGuard>,
   },
   {
     path: '/projects/:projectId/tasks',

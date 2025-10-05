@@ -41,6 +41,15 @@ export const projectService = {
   
   createProject: (orgId: string, data: { name: string; description?: string }) =>
     API.post(`/projects/organizations/${orgId}/projects`, data),
+  
+  updateProject: (id: string, data: { name?: string; description?: string }) =>
+    API.put(`/projects/${id}`, data),
+  
+  deleteProject: (id: string) =>
+    API.delete(`/projects/${id}`),
+  
+  getProjectStats: (id: string) =>
+    API.get(`/projects/${id}/stats`),
 };
 
 export const organizationService = {
@@ -52,4 +61,22 @@ export const organizationService = {
   
   createOrganization: (data: { name: string }) =>
     API.post('/organizations', data),
+  
+  updateOrganization: (id: string, data: { name: string }) =>
+    API.put(`/organizations/${id}`, data),
+  
+  deleteOrganization: (id: string) =>
+    API.delete(`/organizations/${id}`),
+  
+  inviteMember: (id: string, data: { email: string; role: 'admin' | 'member' }) =>
+    API.post(`/organizations/${id}/invite`, data),
+  
+  getMembers: (id: string, params?: { page?: number; limit?: number }) =>
+    API.get(`/organizations/${id}/members`, { params }),
+  
+  updateMemberRole: (orgId: string, userId: string, data: { role: 'owner' | 'admin' | 'member' }) =>
+    API.put(`/organizations/${orgId}/members/${userId}`, data),
+  
+  removeMember: (orgId: string, userId: string) =>
+    API.delete(`/organizations/${orgId}/members/${userId}`),
 };

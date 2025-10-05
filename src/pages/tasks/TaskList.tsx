@@ -19,7 +19,7 @@ const TaskList = () => {
   const [filters, setFilters] = useState<TaskFilters>({
     status: [],
     priority: [],
-    sortBy: 'createdAt',
+    sortBy: 'created_at',
     sortOrder: 'DESC',
   });
 
@@ -32,11 +32,19 @@ const TaskList = () => {
         limit,
         ...filters,
       });
-      setTasks(response.data.data);
-      setTotalPages(response.data.meta.totalPages);
-      setTotal(response.data.meta.total);
+      console.log('Task API Response:', response.data);
+      
+      // The API returns pagination data at root level, not in a meta object
+      const responseData: any = response.data;
+      
+      setTasks(responseData.data || []);
+      setTotalPages(responseData.totalPages || 1);
+      setTotal(responseData.total || 0);
     } catch (error) {
       console.error('Error loading tasks:', error);
+      setTasks([]);
+      setTotal(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -168,8 +176,8 @@ const TaskList = () => {
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value as any }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
               >
-                <option value="createdAt">Created Date</option>
-                <option value="dueDate">Due Date</option>
+                <option value="created_at">Created Date</option>
+                <option value="due_date">Due Date</option>
                 <option value="priority">Priority</option>
               </select>
             </div>

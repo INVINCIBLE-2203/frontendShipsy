@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://backendshipsy.onrender.com',
+  baseURL: 'https://backendshipsy.onrender.com/api',
 });
 
 // Add token to requests

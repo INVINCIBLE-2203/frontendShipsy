@@ -49,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('organizationId');
+    localStorage.removeItem('userId');
     set({ user: null, accessToken: null, refreshToken: null, organizationId: null, isAuthenticated: false });
     window.location.href = '/login';
   },

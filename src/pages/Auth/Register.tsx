@@ -20,7 +20,7 @@ const Register = () => {
       return;
     }
     try {
-      const response = await API.post('/auth/register', { email, username, password });
+      await API.post('/auth/register', { email, username, password });
       // Registration successful - show success message and redirect to login
       toast.success('Registration successful! Please log in with your credentials.');
       navigate('/login', { 

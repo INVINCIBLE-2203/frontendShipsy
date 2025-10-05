@@ -15,14 +15,12 @@ const Dashboard = () => {
   const [showCreateProject, setShowCreateProject] = useState(false);
   const [showEditProject, setShowEditProject] = useState(false);
   const [showDeleteProject, setShowDeleteProject] = useState(false);
-  const [showCreateOrg, setShowCreateOrg] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
   const [editProjectName, setEditProjectName] = useState('');
   const [editProjectDescription, setEditProjectDescription] = useState('');
   const [selectedOrgId, setSelectedOrgId] = useState('');
-  const [newOrgName, setNewOrgName] = useState('');
 
   useEffect(() => {
     loadData();
@@ -95,22 +93,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleCreateOrganization = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newOrgName.trim()) return;
-    
-    try {
-      const response = await organizationService.createOrganization({
-        name: newOrgName,
-      });
-      setOrganization(response.data.id);
-      setNewOrgName('');
-      setShowCreateOrg(false);
-      loadData();
-    } catch (error) {
-      console.error('Error creating organization:', error);
-    }
-  };
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
